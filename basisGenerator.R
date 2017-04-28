@@ -12,16 +12,17 @@ genAllMatrices <- function(x, d) {
 
   # set up matrix w/ correct dimensions
   Q <- matrix(NA, nrow = length(x), ncol = d + 1)
-  R_inv <- matrix(NA, nrow = d + 1, ncol = d + 1)
+  R_inv <- matrix(0, nrow = d + 1, ncol = d + 1)
 
   # renormalising constants
-  a <- b <- c <- 0
+  A <- B <- C <- 0
   gamma <- rep(0, d + 1)
   k <- rep(1, d + 1)
 
   # setup first two cols, corresponding to the 1 and x cols in the X matrix
   n <- length(unique(x))
   Q[ ,1] <- 1 / sqrt(n)
+  k[1] <- 1 / sqrt(n)
   R_inv[1, 1] <- k[1]
 
   Q[, 2] <- x - mean(x)
@@ -58,4 +59,15 @@ genAllMatrices <- function(x, d) {
 
   }
   return(list(Q = Q, R_inv = R_inv))
+}
+
+
+gammaToBeta <- function(gamma, R_inv) {
+  beta <- R_inv  %*% gamma
+  return(beta)
+}
+
+betaToGamma <- function(beta, R_inv) {
+  gamma <- backsolve(R_inv, beta)
+  return(gamma)
 }
