@@ -4,6 +4,7 @@
 
  source("basisGenerator.R")
 
+# not needed after using BMonPol, although might still work!
 genInitalGamma <- function(dat_df, d, R_inv, Q) {
 
   Q_temp <- Q
@@ -44,16 +45,41 @@ genInitalGamma <- function(dat_df, d, R_inv, Q) {
 genMonoProp <- function(gamma_old, innov_sigma, R_inv) {
   # generate a random walk gamma proposal that is monotonic.
 
-  sigma_mat <- diag(length(gamma_old)) * innov_sigma
+  #sigma_mat <- diag(length(gamma_old)) * innov_sigma
   is_it_monotone_yet <- FALSE
   while (!is_it_monotone_yet) {
-    gamma_proposal <- rmvnorm(1, mean = gamma_old, sigma = sigma_mat)
-    temp_beta <- gammaToBeta(t(gamma_proposal), R_inv)
-    print(temp_beta)
-    is_it_monotone_yet <- ismonotone(temp_beta)
+    gamma_proposal <- rnorm(length(gamma_old), mean = gamma_old, sd = innov_sigma)
+    temp_beta <- gammaToBeta(t(t(gamma_proposal)), R_inv)
+    # print(temp_beta
+    # Hard coded to be over [0,1] at the moment, as we have rescaled data.
+    is_it_monotone_yet <- ismonotone(temp_beta, a = 0, b = 1)
   }
   return(gamma_proposal)
 }
+
+genVarProp <- function(var_prev, innov_sd_var) {
+  log_var_prev <- log(var_prev)
+  log_var_prop <- rnorm(1, mean = log_var_prev, sd = innov_sd_var)
+  return(exp(log_var_prop))
+}
+
+
+mvnPDF <-
+
+calcLikelihoodRatio <- function(Q, gamma_prop, gamma_old, var_prop, var_old, y_vec) {
+   # more conveinient to calculate mu as Q * gamma rather than X * Beta
+ mu_new <- Q %*% gamma_prop
+ mu_old <- Q %*% gamma_old
+
+ prior_ratio <- (1 / var_prop) / (1 / var_old)
+
+ ratio <- dmvnorm(x = t(y_vec), mean = t(mu_new), sigma = var_prop * diag(length(y_vec))) /
+          dmvnorm(x = t(y_vec), mean = t(mu_old), sigma = var_old * diag(length(y_vec)))
+
+ return(min(ratio * prior_ratio, 1))
+
+}
+
 
 calcAcceptProb <- function() {
 
