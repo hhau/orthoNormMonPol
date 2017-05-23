@@ -47,7 +47,7 @@ genAllMatrices <- function(x, d) {
 
     ## reorthogonalisation
     for (jj in 1:(ii - 1)) {
-      tmp <- crossprod(Q[, jj], Q[, ii])
+      tmp <- as.vector(crossprod(Q[, jj], Q[, ii]))
       Q[, ii] <- Q[, ii] - tmp*Q[, jj]
       R_inv[,ii] <- R_inv[,ii] - tmp*R_inv[,jj]
     }

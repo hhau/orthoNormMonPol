@@ -66,21 +66,20 @@ genVarProp <- function(var_prev, innov_sd_var) {
 
 mvnPDF <-
 
-calcLikelihoodRatio <- function(Q, gamma_prop, gamma_old, var_prop, var_old, y_vec) {
+calcAcceptProb <- function(Q_old, Q_prop, gamma_prop, gamma_old, var_prop,
+                                var_old, y_vec, q_dim_swap) {
    # more conveinient to calculate mu as Q * gamma rather than X * Beta
- mu_new <- Q %*% gamma_prop
- mu_old <- Q %*% gamma_old
+ mu_new <- Q_prop %*% gamma_prop
+ mu_old <- Q_old %*% gamma_old
 
+   # comes from having flat priors on beta and sigma sq,
+   # i.e. f(beta, sigma%2) \propto 1/sigma^2
  prior_ratio <- (1 / var_prop) / (1 / var_old)
 
  ratio <- dmvnorm(x = t(y_vec), mean = t(mu_new), sigma = var_prop * diag(length(y_vec))) /
           dmvnorm(x = t(y_vec), mean = t(mu_old), sigma = var_old * diag(length(y_vec)))
 
- return(min(ratio * prior_ratio, 1))
+ return(ratio * prior_ratio * (1 / q_dim_swap))
 
 }
 
-
-calcAcceptProb <- function() {
-
-}
