@@ -301,7 +301,7 @@ dat_df$dang_fit <- dang_fit
 ggplot(data = dat_df) + geom_point(mapping = aes(x = x, y = y)) +
   geom_line(mapping = aes(x = x, y = dang_fit))  # +
 
-
+#asdf
 # plotting fits and ci's
 
 
